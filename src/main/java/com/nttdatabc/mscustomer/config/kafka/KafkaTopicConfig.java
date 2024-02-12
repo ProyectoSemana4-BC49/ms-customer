@@ -1,18 +1,20 @@
 package com.nttdatabc.mscustomer.config.kafka;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.TopicConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * config create topic.
+ */
 @Configuration
 public class KafkaTopicConfig {
   @Bean
-  public NewTopic generateTopic(){
+  public NewTopic generateTopic() {
     Map<String, String> configuration = new HashMap<>();
     configuration.put(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_DELETE);
     configuration.put(TopicConfig.RETENTION_MS_CONFIG, "86400000");
@@ -22,8 +24,9 @@ public class KafkaTopicConfig {
         .configs(configuration)
         .build();
   }
+
   @Bean
-  public NewTopic generateTopicCredit(){
+  public NewTopic generateTopicCredit() {
     Map<String, String> configuration = new HashMap<>();
     configuration.put(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_DELETE);
     configuration.put(TopicConfig.RETENTION_MS_CONFIG, "86400000");

@@ -17,10 +17,8 @@ import com.nttdatabc.mscustomer.model.AuthorizedSigner;
 import com.nttdatabc.mscustomer.model.Customer;
 import com.nttdatabc.mscustomer.repository.CustomerRepository;
 import com.nttdatabc.mscustomer.utils.exceptions.errors.ErrorResponseException;
-
 import java.time.Duration;
 import java.util.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -54,8 +52,8 @@ public class CustomerServiceImpl implements CustomerService {
     return redisTemplate.opsForList().range(cacheKey, 0, -1)
         .switchIfEmpty(
             customerRepository.findAll()
-            .flatMap(customers -> redisTemplate.opsForList().leftPushAll(cacheKey, customers)
-                .thenMany(Flux.just(customers))))
+                .flatMap(customers -> redisTemplate.opsForList().leftPushAll(cacheKey, customers)
+                    .thenMany(Flux.just(customers))))
         .cache(cacheDuration)
         .doOnSubscribe(subscription -> redisTemplate.expire(cacheKey, cacheDuration).subscribe());
   }
@@ -144,30 +142,32 @@ public class CustomerServiceImpl implements CustomerService {
   }
 
 
-
   @KafkaListener(topics = {"verify-customer-exist"}, groupId = "my-group-id")
-  public void listenerVerifyCustomer(String message){
+  public void listenerVerifyCustomer(String message) {
     Gson gson = new Gson();
-    Map<String, String> map = gson.fromJson(message, new TypeToken<Map<String, String>>(){}.getType());
+    Map<String, String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {
+    }.getType());
     String customerId = map.get("customerId");
     Mono<Customer> getCustomer = getCustomerByIdService(customerId);
 
     getCustomer.subscribe(customer -> {
-          String jsonDataMono = gson.toJson(customer);
+      String jsonDataMono = gson.toJson(customer);
       kafkaTemplate.send("response-verify-customer-exist", jsonDataMono);
     },
         throwable -> {
-          Map<String, String>responseError = new HashMap<>();
+          Map<String, String> responseError = new HashMap<>();
           responseError.put("error", throwable.getMessage());
           String responseString = gson.toJson(responseError);
           kafkaTemplate.send("response-verify-customer-exist", responseString);
         });
 
   }
+
   @KafkaListener(topics = {"verify-customer-exist-credit"}, groupId = "my-group-id")
-  public void listenerVerifyCustomerCredit(String message){
+  public void listenerVerifyCustomerCredit(String message) {
     Gson gson = new Gson();
-    Map<String, String> map = gson.fromJson(message, new TypeToken<Map<String, String>>(){}.getType());
+    Map<String, String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {
+    }.getType());
     String customerId = map.get("customerId");
     Mono<Customer> getCustomer = getCustomerByIdService(customerId);
     getCustomer.subscribe(
