@@ -19,7 +19,7 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
  */
 @Configuration
 public class KafkaConsumerConfig {
-  @Value("${spring.kafka.bootstrapServers}")
+  @Value("${spring.kafka.bootstrap-servers}")
   private String bootstrapServers;
 
   /**
